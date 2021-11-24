@@ -1,20 +1,23 @@
 package com.company;
 
-import java.time.LocalDate;
+import com.company.finance.Credito;
+import com.company.finance.Solicitante;
+import com.company.finance.SolicitanteBuilder;
 
 public class Main {
 
     public static void main(String[] args) {
-        Solicitante solicitante = new Solicitante();
-        Credito credito = new Credito(solicitante);
-        credito.capturarNomEmpleado();
-        solicitante.capturarNombre();
-        solicitante.capturarFechaNac();
-        solicitante.capturarSexo();
-        solicitante.capturarDomicilio();
-        solicitante.capturarCurp();
-        solicitante.calcularEdad();
-        System.out.println(credito.calcularCredito());
+        // Utilizamos el patrón de diseño Façade dada la complejidad de creación del objeto
+        // Ver: https://www.tutorialspoint.com/design_pattern/facade_pattern.htm
+        Solicitante solicitante = SolicitanteBuilder.crearSolicitante();
+
+        // Esta clase no ocupa una creacion tan compleja, por lo tanto se puede
+        // implementar la lógica de creación del objeto dentro de la clase misma
+        Credito credito = Credito.solicitarCredito(solicitante);
+        solicitante.asignarCredito(credito); // No será asignado si el crédito no fue aprobado
+
+        System.out.println(credito.obtenerDescripcion());
         System.out.println(credito.calcularFechas());
     }
+
 }
