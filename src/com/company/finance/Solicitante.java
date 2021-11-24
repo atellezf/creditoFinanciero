@@ -11,7 +11,7 @@ public class Solicitante {
     protected LocalDate fechaNac;
     // La edad siempre debería ser un dato calculado a partir de la fecha de nacimiento
     // Dado que es un valor que va cambiando con el tiempo (aunque hay sus excepciones, depende del diseño de la clase)
-    protected int edad;
+    // protected int edad;
     private Credito creditoAsignado;
 
     // Declaramos protected el constructor predeterminado para evitar que se utilice para crear objetos desde
