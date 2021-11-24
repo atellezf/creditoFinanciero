@@ -32,6 +32,8 @@ public class Solicitante {
         }
     }
 
+    // Se elimina el atributo edad para reemplazarlo por un método para que siempre se calcule la edad en
+    // base a la fecha actual.
     public int edad() {
        LocalDate ahora = LocalDate.now();
        Period periodo = Period.between(fechaNac, ahora);
