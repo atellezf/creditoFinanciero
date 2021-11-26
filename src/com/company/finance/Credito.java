@@ -51,7 +51,7 @@ public class Credito {
             LocalDate fechaPago = fechaSolicitud.plusMonths(i);
             sb.append("\t • %d Pago:".formatted(i/3));
             sb.append(" %1$td / %1$tm / %1$tY ".formatted(fechaPago));
-            sb.append("\t $%.2f\n".formatted(status.monto / 4));
+            sb.append("\t $%,.2f\n".formatted(status.monto / 4)); // La coma indica mostrar con separador de miles
         }
         return sb.toString();
 //        LocalDate primerPago = fechaSolicitud.plusMonths(3).withDayOfMonth(fechaSolicitud.getDayOfMonth());
@@ -71,7 +71,7 @@ public class Credito {
         return switch(status) {
             case RECHAZADO_POR_DOCS -> "Lamento informarle que no se le puede otorgar el crédito ya que no cuenta con los documentos necesarios";
             case RECHAZADO_POR_EDAD -> "Lamento informarle que no cuenta con la edad requerida para poder obtener un crédito";
-            default -> "Felicidades usted es acreedor a un crédito con un monto de $ %.2f".formatted(status.monto);
+            default -> "Felicidades usted es acreedor a un crédito con un monto de $ %,.2f".formatted(status.monto);
         };
     }
 
