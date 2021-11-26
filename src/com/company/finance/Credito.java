@@ -3,19 +3,17 @@ package com.company.finance;
 import java.time.LocalDate;
 
 public class Credito {
-    // En realidad la lógica debe mostrarnos que un solicitante tiene un crédito
-    // por lo que debemos romper esta relación circular.
-    // private final Solicitante solicitante;
+//     En realidad la lógica debe mostrarnos que un solicitante tiene un crédito
+//     por lo que debemos romper esta relación circular.
+//     private final Solicitante solicitante;
 
-    // Utilizamos constantes para determinar la razón del rechazo del crédito, aunque se puede
-    // trabajar una enumeración para conocer el estado de la aprobación, y quedaría mas elegante el código.
-    private static final int CREDITO_RECHAZADO_POR_DOCS = -100;
-    private static final int CREDITO_RECHAZADO_POR_EDAD = -200;
+//    Se reemplazan las constantes por la enumeración StatusCredito
+//    private static final int CREDITO_RECHAZADO_POR_DOCS = -100;
+//    private static final int CREDITO_RECHAZADO_POR_EDAD = -200;
 
     private LocalDate fechaSolicitud;
+    private StatusCredito status;
     private String empleado;
-    private boolean aprobado;
-    private float monto;
 
     private Credito(String empleado, Solicitante cliente) {
         fechaSolicitud = LocalDate.now();
@@ -36,42 +34,48 @@ public class Credito {
     //Métodos para asignar la cantidad del crédito dependiendo de la edad
     private void calcularMonto(Solicitante cliente) {
         if (cliente.tieneDocumentos()) {
-            monto = switch (cliente.edad()) {
-                case 30, 31, 32, 33, 34, 35 -> 4500f;
-                case 36, 37, 38, 39, 40 -> 5000f;
-                case 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 -> 5500f;
-                case 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64 -> 7000f;
-                default -> CREDITO_RECHAZADO_POR_EDAD;
+            status = switch (cliente.edad()) {
+                case 30, 31, 32, 33, 34, 35 -> StatusCredito.APROBADO_CLASE_A;
+                case 36, 37, 38, 39, 40 -> StatusCredito.APROBADO_CLASE_B;
+                case 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 -> StatusCredito.APROBADO_CLASE_C;
+                case 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64 -> StatusCredito.APROBADO_CLASE_D;
+                default -> StatusCredito.RECHAZADO_POR_EDAD;
             };
-        } else monto = CREDITO_RECHAZADO_POR_DOCS;
-        aprobado = monto > 0;
+        } else status = StatusCredito.RECHAZADO_POR_DOCS;
     }
 
-    //Método para calcular fechas de pagos
+    // Método para calcular fechas de pagos
     public String calcularFechas() {
-        LocalDate primerPago = fechaSolicitud.plusMonths(3).withDayOfMonth(fechaSolicitud.getDayOfMonth());
-        LocalDate segundoPago = fechaSolicitud.plusMonths(6).withDayOfMonth(fechaSolicitud.getDayOfMonth());
-        LocalDate tercerPago = fechaSolicitud.plusMonths(9).withDayOfMonth(fechaSolicitud.getDayOfMonth());
-        LocalDate cuartoPago = fechaSolicitud.plusMonths(12).withDayOfMonth(fechaSolicitud.getDayOfMonth());
-        return """
-            Las fechas de sus pagos son:
-                • 1 Pago: %1$td / %1$tm / %1$tY     $ %5$.2f
-                • 2 Pago: %2$td / %2$tm / %2$tY     $ %5$.2f
-                • 3 Pago: %3$td / %3$tm / %3$tY     $ %5$.2f
-                • 4 Pago: %4$td / %4$tm / %4$tY     $ %5$.2f
-            """.formatted(primerPago, segundoPago, tercerPago, cuartoPago, monto / 4);
+        StringBuilder sb = new StringBuilder("Las fechas de sus pagos son:\n");
+        for (int i = 3; i <= 12; i += 3) {
+            LocalDate fechaPago = fechaSolicitud.plusMonths(i);
+            sb.append("\t • %d Pago:".formatted(i/3));
+            sb.append(" %1$td / %1$tm / %1$tY ".formatted(fechaPago));
+            sb.append("\t $%.2f\n".formatted(status.monto / 4));
+        }
+        return sb.toString();
+//        LocalDate primerPago = fechaSolicitud.plusMonths(3).withDayOfMonth(fechaSolicitud.getDayOfMonth());
+//        LocalDate segundoPago = fechaSolicitud.plusMonths(6).withDayOfMonth(fechaSolicitud.getDayOfMonth());
+//        LocalDate tercerPago = fechaSolicitud.plusMonths(9).withDayOfMonth(fechaSolicitud.getDayOfMonth());
+//        LocalDate cuartoPago = fechaSolicitud.plusMonths(12).withDayOfMonth(fechaSolicitud.getDayOfMonth());
+//        return """
+//            Las fechas de sus pagos son:
+//                • 1 Pago: %1$td / %1$tm / %1$tY     $ %5$.2f
+//                • 2 Pago: %2$td / %2$tm / %2$tY     $ %5$.2f
+//                • 3 Pago: %3$td / %3$tm / %3$tY     $ %5$.2f
+//                • 4 Pago: %4$td / %4$tm / %4$tY     $ %5$.2f
+//            """.formatted(primerPago, segundoPago, tercerPago, cuartoPago, monto / 4);
     }
 
     public String obtenerDescripcion() {
-        if( monto == CREDITO_RECHAZADO_POR_DOCS ) {
-            return "Lamento informarle que no se le puede otorgar el crédito ya que no cuenta con los documentos necesarios";
-        } else if( monto == CREDITO_RECHAZADO_POR_EDAD ) {
-            return "Lamento informarle que no cuenta con la edad requerida para poder obtener un crédito";
-        }
-        return "Felicidades usted es acreedor a un crédito con un monto de $ %.2f".formatted(monto);
+        return switch(status) {
+            case RECHAZADO_POR_DOCS -> "Lamento informarle que no se le puede otorgar el crédito ya que no cuenta con los documentos necesarios";
+            case RECHAZADO_POR_EDAD -> "Lamento informarle que no cuenta con la edad requerida para poder obtener un crédito";
+            default -> "Felicidades usted es acreedor a un crédito con un monto de $ %.2f".formatted(status.monto);
+        };
     }
 
     public boolean isAprobado() {
-        return aprobado;
+        return status.aprobado;
     }
 }
